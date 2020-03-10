@@ -7,3 +7,5 @@ insert into restaurante(nome, taxa_frete, cozinha_id) values ('Tuk Tuk Comida In
 
 insert into estado(nome) values ('Bahia');
 insert into estado(nome) values ('São Paulo');
+
+insert into cidade(nome, estado_id) values ('Camaçari', 1);

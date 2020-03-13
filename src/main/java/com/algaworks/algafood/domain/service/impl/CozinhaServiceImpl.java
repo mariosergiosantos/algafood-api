@@ -3,6 +3,8 @@ package com.algaworks.algafood.domain.service.impl;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -25,7 +27,9 @@ public class CozinhaServiceImpl implements CozinhaService {
 	}
 
 	public Optional<Cozinha> findById(Long cozinhaId) {
-		return cozinhaRepository.findById(cozinhaId);
+		return Optional
+				.ofNullable(cozinhaRepository.findById(cozinhaId).orElseThrow(() -> new EntityNotFoundException(
+						String.format("Cozinha com código %d não encontrado!", cozinhaId))));
 	}
 
 	public Cozinha save(Cozinha cozinha) {

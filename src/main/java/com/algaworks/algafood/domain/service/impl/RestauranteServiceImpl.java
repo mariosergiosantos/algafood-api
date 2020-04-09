@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import javax.persistence.EntityNotFoundException;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -42,7 +43,26 @@ public class RestauranteServiceImpl implements RestauranteService {
 
 	@Override
 	public Restaurante save(Restaurante restaurante) {
+		verifySaveUpdate(restaurante);
+		return restauranteRepository.save(restaurante);
+	}
+	
+	@Override
+	public Restaurante update(Restaurante restaurante) {
+		verifySaveUpdate(restaurante);
+		
+		Optional<Restaurante> resOptional = findById(restaurante.getId());
+		Restaurante restauranteAtual = null;
+		
+		if (resOptional.isPresent()) {
+			restauranteAtual = resOptional.get();
+			BeanUtils.copyProperties(restaurante, restauranteAtual, "id", "formaPagamentos");
+		}
 
+		return restauranteRepository.save(restauranteAtual);
+	}
+
+	private void verifySaveUpdate(Restaurante restaurante) {
 		if (Objects.isNull(restaurante.getNome()) || Objects.isNull(restaurante.getCozinha())) {
 			throw new BussinessException("Campos obrigatórios não preenchidos");
 		}
@@ -50,8 +70,6 @@ public class RestauranteServiceImpl implements RestauranteService {
 		if (cozinhaService.findById(restaurante.getCozinha().getId()).isEmpty()) {
 			throw new EntityNotFoundException("Identificador da cozinha não encontrada!");
 		}
-
-		return restauranteRepository.save(restaurante);
 	}
 
 	@Override

@@ -69,7 +69,7 @@ public class RestauranteController {
 	public ResponseEntity<?> update(@PathVariable Long restauranteId, @RequestBody Restaurante restaurante) {
 
 		try {
-			return ResponseEntity.ok(restauranteService.save(restaurante));
+			return ResponseEntity.ok(restauranteService.update(restaurante));
 		} catch (EntityNotFoundException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}

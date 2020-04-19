@@ -46,17 +46,18 @@ public class RestauranteServiceImpl implements RestauranteService {
 		verifySaveUpdate(restaurante);
 		return restauranteRepository.save(restaurante);
 	}
-	
+
 	@Override
 	public Restaurante update(Restaurante restaurante) {
 		verifySaveUpdate(restaurante);
-		
+
 		Optional<Restaurante> resOptional = findById(restaurante.getId());
 		Restaurante restauranteAtual = null;
-		
+
 		if (resOptional.isPresent()) {
 			restauranteAtual = resOptional.get();
-			BeanUtils.copyProperties(restaurante, restauranteAtual, "id", "formaPagamentos");
+			BeanUtils.copyProperties(restaurante, restauranteAtual, "id", "formaPagamentos", "endereco", "dataCadastro",
+					"produtos");
 		}
 
 		return restauranteRepository.save(restauranteAtual);

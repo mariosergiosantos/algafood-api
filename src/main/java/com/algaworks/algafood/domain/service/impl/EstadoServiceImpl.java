@@ -1,19 +1,22 @@
 package com.algaworks.algafood.domain.service.impl;
 
 import java.util.List;
-import java.util.Optional;
-
-import javax.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
+import com.algaworks.algafood.domain.exception.EstadoNotFoundException;
 import com.algaworks.algafood.domain.model.Estado;
 import com.algaworks.algafood.domain.repository.EstadoRepository;
 import com.algaworks.algafood.domain.service.EstadoService;
 
 @Service
 public class EstadoServiceImpl implements EstadoService {
+
+	private static final String MSG_ESTADO_EM_USO = "Estado de código %d não pode ser removido, pois está em uso";
 
 	@Autowired
 	private EstadoRepository estadoRepository;
@@ -24,9 +27,8 @@ public class EstadoServiceImpl implements EstadoService {
 	}
 
 	@Override
-	public Optional<Estado> findById(Long estadoId) {
-		return Optional.ofNullable(estadoRepository.findById(estadoId).orElseThrow(
-				() -> new EntityNotFoundException(String.format("Estado com código %d não encontrado!", estadoId))));
+	public Estado findById(Long estadoId) {
+		return estadoRepository.findById(estadoId).orElseThrow(() -> new EstadoNotFoundException(estadoId));
 	}
 
 	@Override
@@ -36,7 +38,13 @@ public class EstadoServiceImpl implements EstadoService {
 
 	@Override
 	public void remove(Long estadoId) {
-		estadoRepository.deleteById(estadoId);
+		try {
+			estadoRepository.deleteById(estadoId);
+		} catch (EmptyResultDataAccessException e) {
+			throw new EstadoNotFoundException(estadoId);
+		} catch (DataIntegrityViolationException e) {
+			throw new EntidadeEmUsoException(String.format(MSG_ESTADO_EM_USO, estadoId));
+		}
 	}
 
 }

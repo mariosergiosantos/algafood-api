@@ -1,7 +1,6 @@
 package com.algaworks.algafood.domain.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -12,7 +11,7 @@ public interface EstadoService {
 	
 	List<Estado> findAll();
 
-	Optional<Estado> findById(Long estadoId);
+	Estado findById(Long estadoId);
 
 	Estado save(Estado estado);
 

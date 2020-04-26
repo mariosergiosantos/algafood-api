@@ -1,20 +1,14 @@
 package com.algaworks.algafood.domain.service.impl;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
-import javax.persistence.EntityNotFoundException;
-
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
-import com.algaworks.algafood.domain.exception.BussinessException;
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
-import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
+import com.algaworks.algafood.domain.exception.RestauranteNotFoundException;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import com.algaworks.algafood.domain.service.CozinhaService;
@@ -22,6 +16,8 @@ import com.algaworks.algafood.domain.service.RestauranteService;
 
 @Service
 public class RestauranteServiceImpl implements RestauranteService {
+
+	private static final String MSG_RESTAURANTE_EM_USO = "Restaurante de código %d não pode ser removido, pois está em uso";
 
 	@Autowired
 	private RestauranteRepository restauranteRepository;
@@ -35,42 +31,15 @@ public class RestauranteServiceImpl implements RestauranteService {
 	}
 
 	@Override
-	public Optional<Restaurante> findById(Long restauranteId) {
-		return Optional
-				.ofNullable(restauranteRepository.findById(restauranteId).orElseThrow(() -> new EntityNotFoundException(
-						String.format("Restaurante com código %d não encontrado!", restauranteId))));
+	public Restaurante findById(Long restauranteId) {
+		return restauranteRepository.findById(restauranteId)
+				.orElseThrow(() -> new RestauranteNotFoundException(restauranteId));
 	}
 
 	@Override
 	public Restaurante save(Restaurante restaurante) {
-		verifySaveUpdate(restaurante);
+		cozinhaService.findById(restaurante.getCozinha().getId());
 		return restauranteRepository.save(restaurante);
-	}
-
-	@Override
-	public Restaurante update(Restaurante restaurante) {
-		verifySaveUpdate(restaurante);
-
-		Optional<Restaurante> resOptional = findById(restaurante.getId());
-		Restaurante restauranteAtual = null;
-
-		if (resOptional.isPresent()) {
-			restauranteAtual = resOptional.get();
-			BeanUtils.copyProperties(restaurante, restauranteAtual, "id", "formaPagamentos", "endereco", "dataCadastro",
-					"produtos");
-		}
-
-		return restauranteRepository.save(restauranteAtual);
-	}
-
-	private void verifySaveUpdate(Restaurante restaurante) {
-		if (Objects.isNull(restaurante.getNome()) || Objects.isNull(restaurante.getCozinha())) {
-			throw new BussinessException("Campos obrigatórios não preenchidos");
-		}
-
-		if (cozinhaService.findById(restaurante.getCozinha().getId()).isEmpty()) {
-			throw new EntityNotFoundException("Identificador da cozinha não encontrada!");
-		}
 	}
 
 	@Override
@@ -78,11 +47,9 @@ public class RestauranteServiceImpl implements RestauranteService {
 		try {
 			restauranteRepository.deleteById(restauranteId);
 		} catch (EmptyResultDataAccessException e) {
-			throw new EntidadeNaoEncontradaException(
-					String.format("Não existe um cadastro de restaurante com código %d", restauranteId));
+			throw new RestauranteNotFoundException(restauranteId);
 		} catch (DataIntegrityViolationException e) {
-			throw new EntidadeEmUsoException(
-					String.format("Restaurante de código %d não pode ser removido, pois está em uso", restauranteId));
+			throw new EntidadeEmUsoException(String.format(MSG_RESTAURANTE_EM_USO, restauranteId));
 		}
 	}
 

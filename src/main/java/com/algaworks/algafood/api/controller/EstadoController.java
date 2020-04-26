@@ -1,15 +1,10 @@
 package com.algaworks.algafood.api.controller;
 
 import java.util.List;
-import java.util.Optional;
 
-import javax.persistence.EntityNotFoundException;
-
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,14 +31,8 @@ public class EstadoController {
 	}
 
 	@GetMapping("/{estadoId}")
-	public ResponseEntity<Estado> find(@PathVariable Long estadoId) {
-		Optional<Estado> estado = estadoService.findById(estadoId);
-
-		if (estado.isPresent()) {
-			return ResponseEntity.ok(estado.get());
-		}
-
-		return ResponseEntity.notFound().build();
+	public Estado find(@PathVariable Long estadoId) {
+		return estadoService.findById(estadoId);
 	}
 
 	@PostMapping
@@ -53,29 +42,16 @@ public class EstadoController {
 	}
 
 	@PutMapping("/{estadoId}")
-	public ResponseEntity<?> update(@PathVariable Long estadoId, @RequestBody Estado estado) {
-		try {
-			estadoService.findById(estadoId).orElseThrow(
-					() -> new EntityNotFoundException(String.format("Estado com código %d não encontrado!", estadoId)));
-			return ResponseEntity.ok(estadoService.save(estado));
-		} catch (EntityNotFoundException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
+	public Estado update(@PathVariable Long estadoId, @RequestBody Estado estado) {
+		Estado estadoAtual = estadoService.findById(estadoId);
+		BeanUtils.copyProperties(estado, estadoAtual, "id");
+		return estadoService.save(estadoAtual);
 	}
 
 	@DeleteMapping("/{estadoId}")
-	public ResponseEntity<?> remove(@PathVariable Long estadoId) {
-		try {
-			estadoService.remove(estadoId);
-		} catch (DataIntegrityViolationException e) {
-			return ResponseEntity.badRequest()
-					.body(String.format("Estado com código %d não pode ser removido pois está em uso!", estadoId));
-		} catch (EmptyResultDataAccessException e) {
-			return ResponseEntity.badRequest().body(String.format("Estado com código %d não encontrado!", estadoId));
-		}
-
-		return ResponseEntity.noContent().build();
-
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void remove(@PathVariable Long estadoId) {
+		estadoService.remove(estadoId);
 	}
 
 }

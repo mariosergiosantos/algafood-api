@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.algaworks.algafood.domain.exception.BadRequestException;
+import com.algaworks.algafood.domain.exception.BusinessException;
 import com.algaworks.algafood.domain.exception.EstadoNotFoundException;
 import com.algaworks.algafood.domain.model.Cidade;
 import com.algaworks.algafood.domain.service.CidadeService;
@@ -43,7 +43,7 @@ public class CidadeController {
 		try {
 			return cidadeService.save(cidade);
 		} catch (EstadoNotFoundException e) {
-			throw new BadRequestException(e.getMessage(), e);
+			throw new BusinessException(e.getMessage(), e);
 		}
 	}
 
@@ -54,7 +54,7 @@ public class CidadeController {
 		try {
 			return cidadeService.save(cidade);
 		} catch (EstadoNotFoundException e) {
-			throw new BadRequestException(e.getMessage(), e);
+			throw new BusinessException(e.getMessage(), e);
 		}
 	}
 

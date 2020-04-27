@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.algaworks.algafood.domain.exception.BadRequestException;
+import com.algaworks.algafood.domain.exception.BusinessException;
 import com.algaworks.algafood.domain.exception.NotFoundException;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.service.RestauranteService;
@@ -48,7 +48,7 @@ public class RestauranteController {
 		try {
 			return restauranteService.save(restaurante);
 		} catch (NotFoundException e) {
-			throw new BadRequestException(e.getMessage(), e);
+			throw new BusinessException(e.getMessage(), e);
 		}
 	}
 
@@ -62,7 +62,7 @@ public class RestauranteController {
 		try {
 			return restauranteService.save(restauranteAtual);
 		} catch (NotFoundException e) {
-			throw new BadRequestException(e.getMessage(), e);
+			throw new BusinessException(e.getMessage(), e);
 		}
 
 	}

@@ -1,15 +1,15 @@
 package com.algaworks.algafood.domain.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-@ResponseStatus(HttpStatus.NOT_FOUND)
-public abstract class NotFoundException extends RuntimeException {
+public abstract class NotFoundException extends BusinessException {
 
 	private static final long serialVersionUID = 1L;
 
 	public NotFoundException(String mensagem) {
 		super(mensagem);
+	}
+	
+	public NotFoundException(String mensagem, Throwable cause) {
+		super(mensagem, cause);
 	}
 
 }

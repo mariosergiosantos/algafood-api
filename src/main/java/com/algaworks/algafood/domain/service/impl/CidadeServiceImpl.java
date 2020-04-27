@@ -8,7 +8,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
-import com.algaworks.algafood.domain.exception.BadRequestException;
+import com.algaworks.algafood.domain.exception.BusinessException;
 import com.algaworks.algafood.domain.exception.CidadeNotFoundException;
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.model.Cidade;
@@ -42,7 +42,7 @@ public class CidadeServiceImpl implements CidadeService {
 	@Override
 	public Cidade save(Cidade cidade) {
 		if (Objects.isNull(cidade.getNome()) || Objects.isNull(cidade.getEstado())) {
-			throw new BadRequestException("Campos obrigatórios não preenchidos");
+			throw new BusinessException("Campos obrigatórios não preenchidos");
 		}
 
 		Estado estado = estadoService.findById(cidade.getEstado().getId());

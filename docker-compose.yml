@@ -1,0 +1,12 @@
+version: '3'
+services:
+    alga-db:
+        image: mysql:5.7
+        ports: 
+            - "3306:3306"
+        environment:
+            MYSQL_DATABASE: "algafood"
+            MYSQL_USER: "root"
+            MYSQL_ROOT_PASSWORD: "teste@1234"
+        volumes:
+            - /data/mysql
